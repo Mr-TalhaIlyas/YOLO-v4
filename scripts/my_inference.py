@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 import torch.nn.functional as F
-import re
+import re, sys
 
 class Mish(torch.nn.Module):
     def __init__(self):
@@ -417,88 +417,9 @@ class Yolov4(nn.Module):
 
         output = self.head(x20, x13, x6)
         return output
-    
-def xywh_2_xyminmax(img_w, img_h, box):
-    '''
-    input_box : (x, y, w, h)
-    output_box : (xmin, ymin, xmax, ymax) @ un_normalized
-    '''
-    xmin = box[0] - (box[2] / 2)
-    ymin = box[1] - (box[3] / 2)
-    xmax = box[0] + (box[2] / 2)
-    ymax = box[1] + (box[3] / 2)
-    
-    box_minmax = np.array([xmin*img_w, ymin*img_h, xmax*img_w, ymax*img_h]).astype(np.int)
-    box_minmax[box_minmax<0] = 0 # to make -ve values zero
-    return box_minmax
 
-def draw_boxes(image_in, confidences, nms_box, det_classes, classes, order='yx_minmax', analysis=False):
-    '''
-    Parameters
-    ----------
-    image : RGB image original shape will be resized
-    confidences : confidence scores array, shape (None,)
-    nms_box : all the b_box coordinates array after NMS, shape (None, 4) => order [y_min, x_min, y_max, x_max]
-    det_classes : shape (None,), names  of classes detected
-    classes : all classes names in dataset
-    '''
-    img_h = 416
-    img_w = 416
-    # rescale and resize image
-    image = cv2.resize(image_in, (img_w, img_h))/255
-    boxes = np.empty((nms_box.shape))
-    if order == 'yx_minmax': # pred
-        # form [y_min, x_min, y_max, x_max]  to [x_min, y_min, x_max, y_max]
-        # and also making them absolute from relative by mult. wiht img dim.
-        boxes[:,1] = nms_box[:,0] * img_h
-        boxes[:,0] = nms_box[:,1] * img_w
-        boxes[:,3] = nms_box[:,2] * img_h 
-        boxes[:,2] = nms_box[:,3] * img_w 
-    elif order == 'xy_minmax': # gt
-        boxes[:,0] = nms_box[:,0] #* img_w
-        boxes[:,1] = nms_box[:,1] #* img_h
-        boxes[:,2] = nms_box[:,2] #* img_w 
-        boxes[:,3] = nms_box[:,3] #* img_h 
-    elif order == 'xy_wh': # yolo foramt
-        boxes[:,0] = (nms_box[:,0] - (nms_box[:,2] / 2)) * img_w
-        boxes[:,1] = (nms_box[:,1] - (nms_box[:,3] / 2)) * img_h
-        boxes[:,2] = (nms_box[:,0] + (nms_box[:,2] / 2)) * img_w 
-        boxes[:,3] = (nms_box[:,1] + (nms_box[:,3] / 2)) * img_h 
-    
-    boxes = (boxes).astype(np.uint16)
-    i = 1
-
-    colors =  sns.color_palette("Set2") + sns.color_palette("bright")
-    [colors.extend(colors) for i in range(3)]
-    bb_line_tinkness = 2
-    for result in zip(confidences, boxes, det_classes, colors):
-        conf = float(result[0])
-        facebox = result[1].astype(np.int16)
-        #print(facebox)
-        name = result[2]
-        color = colors[classes.index(name)]#result[3]
-        if analysis and order == 'yx_minmax': # pred
-            color = (1., 0., 0.) # red  
-            bb_line_tinkness = 4
-        if analysis and order == 'xy_minmax': # gt
-            color = (0., 1., 0.)  # green 
-            bb_line_tinkness = 4
-        cv2.rectangle(image, (facebox[0], facebox[1]),
-                     (facebox[2], facebox[3]), color, bb_line_tinkness)#255, 0, 0
-        label = '{0}: {1:0.3f}'.format(name.strip(), conf)
-        label_size, base_line = cv2.getTextSize(
-            label, cv2.FONT_HERSHEY_DUPLEX   , 0.7, 1)
-        
-        if not analysis:
-            cv2.rectangle(image, (facebox[0], facebox[1] - label_size[1]),    # top left cornor
-                         (facebox[0] + label_size[0], facebox[1] + base_line),# bottom right cornor
-                         color, cv2.FILLED)
-        
-            op = cv2.putText(image, label, (facebox[0], facebox[1]),
-                       cv2.FONT_HERSHEY_DUPLEX   , 0.7, (0, 0, 0)) 
-        i = i+1
-    return image#, boxes, det_classes, np.round(confidences, 3)
 #%%
+from my_utils import xywh_2_xyminmax, draw_boxes
 import seaborn as sns
 import sys, os, glob, random, cv2
 from PIL import Image
@@ -512,11 +433,11 @@ img_paths = glob.glob('/home/user01/data_ssd/Talha/yolo/cells_v4/test/*.png') + 
             glob.glob('/home/user01/data_ssd/Talha/yolo/cells_v4/test/*.jpg')
 imgfile = random.choice(img_paths)
 plot = False
-n_classes = 3
+n_classes = 6
 
 weightfile = '/home/user01/data_ssd/Talha/yolo/cells_v4/checkpoints/Yolov4_epoch35.pth'
 namesfile = '/home/user01/data_ssd/Talha/yolo/cells_v4/test/_classes.txt'
-op_dir = '/home/user01/data_ssd/Talha/yolo/yolo_v4_eval/'
+op_dir = '/home/user01/data_ssd/Talha/yolo/eval/'
 
 filelist = [ f for f in os.listdir(op_dir)]# if f.endswith(".png") ]
 for f in tqdm(filelist, desc = 'Deleting old files op_dir'):
@@ -530,7 +451,6 @@ model.load_state_dict(pretrained_dict)
 use_cuda = 1
 if use_cuda:
     model.cuda()
-
 
 for i in trange(len(img_paths), desc='Writing files for Eval'):
     imgfile = img_paths[i]
@@ -599,6 +519,30 @@ for i in trange(len(img_paths), desc='Writing files for Eval'):
             # Append text at the end of file
             file_object.write(all_bounding_boxnind[i])
 #%%
+
+imgfile = img_paths[10]
+img = Image.open(imgfile).convert('RGB')
+sized = img.resize((608, 608))
+class_names = load_class_names(namesfile)
+boxes = do_detect(model, sized, 0.5, n_classes,0.4, use_cuda)
+
+boxes = np.asarray(boxes).astype(np.float)
+name = os.path.basename(imgfile)[:-4]
+
+coords_xywh = np.zeros((boxes.shape[0], 4)) # droping 5th value
+confd = np.zeros((boxes.shape[0], 1))
+class_ids = np.zeros((boxes.shape[0], 1))
+# assign
+coords_xywh = boxes[:,0:4] # coords
+confd = boxes[:,5] # confidence
+class_ids = boxes[:,6] # class id
+
+coords_xyminmax = []
+det_classes = []
+for i in range(boxes.shape[0]):
+    coords_xyminmax.append(xywh_2_xyminmax(img.size[0], img.size[1], coords_xywh[i]))
+    det_classes.append(class_names[int(class_ids[i])])
+    
 img  = cv2.imread(imgfile)
 t = np.asarray(coords_xyminmax)
 op = draw_boxes(img, confd, t, det_classes, class_names, order='xy_minmax', analysis=False)
