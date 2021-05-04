@@ -24,7 +24,7 @@ Original [Colab Notebook](https://colab.research.google.com/drive/1b08y_nUYv5UtD
 First to train an object detection model you need a dataset annotated in proper format so download publically available datasets from [here](https://public.roboflow.com/).
 I'd recommend starting by downloading already available dataset. There are alot of format options available in Roboflow but for this repo we need `YOLO v4 PyTorch` as this 
 
-![alt text](https://github.com/Mr-TalhaIlyas/YOLO-v4/blob/master/screens/img.png)
+![alt text](https://github.com/Mr-TalhaIlyas/YOLO-v4/blob/master/screens/img.png?raw=true)
 
 or you can also make you own dataset using `labelimg`. A full tutorial for that is [here](https://github.com/tzutalin/labelImg)
 The ouput annotation file for label me is `.xml` format but our yolov4 model can't read that so we need to convert the dataset into proper format
