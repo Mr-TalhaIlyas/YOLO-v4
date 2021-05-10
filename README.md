@@ -1,3 +1,4 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) <img alt="PyTorch" src="https://img.shields.io/badge/PyTorch%20-%23EE4C2C.svg?&style=for-the-badge&logo=PyTorch&logoColor=white" />
 # YOLO v4
 
 This repo exaplins how to train [YOLOv4](https://arxiv.org/abs/2004.10934) model on your custom dataset. 
@@ -10,10 +11,10 @@ Normalization (CmBN), Self-adversarial-training (SAT) and Mish-activation. We us
 CmBN, SAT, Mish activation, Mosaic data augmentation, CmBN, DropBlock regularization, and CIoU loss, and combine some of them to achieve state-of-the-art results: 43.5% AP (65.7% AP50) for the MS COCO dataset at a realtime speed of ∼65 FPS on Tesla V100. 
 
 Source code is at [original repo](https://github.com/AlexeyAB/darknet)
-
+**Images form original paper**
 ![alt text](https://github.com/Mr-TalhaIlyas/YOLO-v4/blob/master/screens/img2.png)
 ### Comarison with other state of the art models
-![alt text](https://github.com/Mr-TalhaIlyas/YOLO-v4/blob/master/screens/img1.png)
+![alt text](https://github.com/Mr-TalhaIlyas/YOLO-v4/blob/master/screens/img.png?raw=true)
 ## Dependencies
 
 Some of the main requirements are
@@ -36,7 +37,7 @@ Original [Colab Notebook](https://colab.research.google.com/drive/1b08y_nUYv5UtD
 First to train an object detection model you need a dataset annotated in proper format so download publically available datasets from [here](https://public.roboflow.com/).
 I'd recommend starting by downloading already available dataset. There are alot of format options available in Roboflow but for this repo we need `YOLO v4 PyTorch` as this 
 
-![alt text](https://github.com/Mr-TalhaIlyas/YOLO-v4/blob/master/screens/img.png?raw=true)
+![alt text](https://github.com/Mr-TalhaIlyas/YOLO-v5/blob/master/screens/data_fmt.png)
 
 or you can also make you own dataset using `labelimg`. A full tutorial for that is [here](https://github.com/tzutalin/labelImg)
 The ouput annotation file for label me is `.xml` format but our yolov4 model can't read that so we need to convert the dataset into proper format
