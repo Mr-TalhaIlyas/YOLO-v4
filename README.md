@@ -1,7 +1,19 @@
 # YOLO v4
 
 This repo exaplins how to train [YOLOv4](https://arxiv.org/abs/2004.10934) model on your custom dataset. 
+### About YOLO v4
+There are a huge number of features which are said to improve Convolutional Neural Network (CNN) accuracy. Practical testing of combinations of such features on large datasets, and theoretical justification of the result, is required. Some features operate on certain models exclusively
+and for certain problems exclusively, or only for small-scale datasets; while some features, such as batch-normalization
+and residual-connections, are applicable to the majority of models, tasks, and datasets. We assume that such universal
+features include Weighted-Residual-Connections (WRC), Cross-Stage-Partial-connections (CSP), Cross mini-Batch
+Normalization (CmBN), Self-adversarial-training (SAT) and Mish-activation. We use new features: WRC, CSP,
+CmBN, SAT, Mish activation, Mosaic data augmentation, CmBN, DropBlock regularization, and CIoU loss, and combine some of them to achieve state-of-the-art results: 43.5% AP (65.7% AP50) for the MS COCO dataset at a realtime speed of ∼65 FPS on Tesla V100. 
 
+Source code is at [original repo](https://github.com/AlexeyAB/darknet)
+
+![alt text]()
+### Comarison with other state of the art models
+![alt text]()
 ## Dependencies
 
 Some of the main requirements are
