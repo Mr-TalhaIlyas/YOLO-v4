@@ -11,9 +11,9 @@ CmBN, SAT, Mish activation, Mosaic data augmentation, CmBN, DropBlock regulariza
 
 Source code is at [original repo](https://github.com/AlexeyAB/darknet)
 
-![alt text]()
+![alt text](https://github.com/Mr-TalhaIlyas/YOLO-v4/blob/master/screens/img2.png)
 ### Comarison with other state of the art models
-![alt text]()
+![alt text](https://github.com/Mr-TalhaIlyas/YOLO-v4/blob/master/screens/img1.png)
 ## Dependencies
 
 Some of the main requirements are
